@@ -44,6 +44,23 @@ function start(func, options) {
       payload.on('error', done);
     });
   
+    server.addContentTypeParser(
+    'application/json',
+    { parseAs: 'buffer' },
+    function (req, body, done) {
+      try {
+        var newBody = {
+          parsed: {...JSON.parse(body.toString())},
+          raw: body
+        }
+        done(null, newBody)
+      } catch (error) {
+        error.statusCode = 400
+        done(error, undefined)
+      }
+    }
+  );
+  
   server.addContentTypeParser('*', { parseAs: 'buffer' }, function(req, body, done) {
     try {
       done(null, body);
